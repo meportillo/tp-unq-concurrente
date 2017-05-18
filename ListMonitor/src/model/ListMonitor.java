@@ -1,13 +1,16 @@
 package model;
 
+import java.util.concurrent.locks.Condition;
+
 public class ListMonitor {
 
 	private int[] list;
 	private int cantInt;
+	private Condition noHayElementos;
 
 	public ListMonitor() {
 		this.cantInt = 0;
-		 list = new int[3];
+		this.list = new int[3];
 	}
 
 	public synchronized int size() {
@@ -28,12 +31,28 @@ public class ListMonitor {
 	}
 	
 	public synchronized int peek(){
-		//falta bloquear si no hay elementos
+		while(cantInt == 0){
+			try {
+				noHayElementos.wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		return list[0];
 	}
 	
 	public synchronized int pop(){
-		//falta bloquear si no hay elementos
+		while(cantInt == 0){
+			try{
+				noHayElementos.wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		int first = list[0];
 		int[] temp = list;
 		
@@ -57,17 +76,8 @@ public class ListMonitor {
 			list[cantInt] = itgr;
 			cantInt++;
 		}
+		noHayElementos.notify(); //o notifyAll?
 	}
-	
-	/////////////////////////////////////////////////////////
-	//LO USO PARA TESTEAR EL METODO SORT. BORRAR
-	
-	
-	public int get(int i){
-		return list[i];
-	}
-	
-	/////////////////////////////////////////////////////////
 	
     public void sort() {
         mergesort(0, cantInt - 1);
@@ -113,4 +123,5 @@ public class ListMonitor {
 	private boolean hayEspacio() {
 		return cantInt < list.length;
 	}
+
 }
