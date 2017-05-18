@@ -1,12 +1,9 @@
 package model;
 
-import java.util.concurrent.locks.Condition;
-
 public class ListMonitor {
 
 	private int[] list;
 	private int cantInt;
-	private Condition noHayElementos;
 
 	public ListMonitor() {
 		this.cantInt = 0;
@@ -33,7 +30,7 @@ public class ListMonitor {
 	public synchronized int peek(){
 		while(cantInt == 0){
 			try {
-				noHayElementos.wait();
+				wait();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -46,7 +43,7 @@ public class ListMonitor {
 	public synchronized int pop(){
 		while(cantInt == 0){
 			try{
-				noHayElementos.wait();
+				wait();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -76,7 +73,7 @@ public class ListMonitor {
 			list[cantInt] = itgr;
 			cantInt++;
 		}
-		noHayElementos.notify(); //o notifyAll?
+		notify(); //o notifyAll?
 	}
 	
     public void sort() {
